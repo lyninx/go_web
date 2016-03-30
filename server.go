@@ -3,39 +3,43 @@ package main
 import (
 	"fmt"
 	"os"
+	"log"
 	"html/template"
 	"net/http"
 	"regexp"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
+	//"encoding/json"
 )
 
 type Page struct {
-	Title string
-	Body  []byte
+	Title string `json:"title"`
+	Content string `json:"content"`
 }
 
 type justFilesFilesystem struct {
-    fs http.FileSystem
+	fs http.FileSystem
 }
 
 func (fs justFilesFilesystem) Open(name string) (http.File, error) {
-    f, err := fs.fs.Open(name)
-    if err != nil {
-        return nil, err
-    }
-    return neuteredReaddirFile{f}, nil
+	f, err := fs.fs.Open(name)
+	if err != nil {
+		return nil, err
+	}
+	return neuteredReaddirFile{f}, nil
 }
 
 type neuteredReaddirFile struct {
-    http.File
+	http.File
 }
 
 func (f neuteredReaddirFile) Readdir(count int) ([]os.FileInfo, error) {
-    return nil, nil
+	return nil, nil
 }
 
 func loadPage(title string) (*Page, error) {
-	body := []byte("hi, world")	
-	return &Page{Title: title, Body: body}, nil
+	content := "hi, world"	
+	return &Page{Title: title, Content: content}, nil
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request, title string) {
@@ -76,8 +80,41 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 
 
 func main() {
+	// connect to mongoDB
+	session, err := mgo.Dial("mongodb://admin:testpass@ds023108.mlab.com:23108/go")
+		if err != nil {
+				panic(err)
+		}
+		defer session.Close()
+
+	pages := session.DB("go").C("pages")
+
+
+	// page := &Page{Title: "test", Content: "pagecontent"}
+	// b, err := json.Marshal(page)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
+	// fmt.Println(string(b))
+	// err = pages.Insert(page)
+	// if err != nil {
+	// 		log.Fatal(err)
+	// }
+
+	result := Page{}
+	err = pages.Find(bson.M{"title": "test"}).One(&result)
+	if err != nil {
+			log.Fatal(err)
+	}
+
+	fmt.Println("page:", result.Content)
+	fmt.Println(err)
+
+	/////////////////////
+
 	fs := justFilesFilesystem{http.Dir("public/")}
- 	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(fs)))
+	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(fs)))
 
 	http.HandleFunc("/", makeHandler(indexHandler))
 	fmt.Println("listening on port 8080")
