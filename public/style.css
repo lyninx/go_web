@@ -1,0 +1,9 @@
+body {
+	background:#eee;
+}
+#main {
+	width:1020px;
+	margin:auto;
+	background:#fff;
+	padding:20px;
+}
