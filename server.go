@@ -12,6 +12,7 @@ import (
 )
 
 type Page struct {
+	URL string `json:"url"`
 	Title string `json:"title"`
 	Content string `json:"content"`
 }
@@ -36,7 +37,7 @@ func (f neuteredReaddirFile) Readdir(count int) ([]os.FileInfo, error) {
 	return nil, nil
 }
 
-func loadPage(title string) (*Page, error) {
+func loadPage(url string) (*Page, error) {
 	// connect to mongoDB
 	session, err := mgo.Dial("mongodb://admin:testpass@ds023108.mlab.com:23108/go")
 		if err != nil {
@@ -59,24 +60,27 @@ func loadPage(title string) (*Page, error) {
 	// 		log.Fatal(err)
 	// }
 
-	result := Page{Title: title, Content: "default page content"}
-	title = title[1:]
-	err = pages.Find(bson.M{"title": title}).One(&result)
+	result := Page{URL: url, Title: "not found", Content: "default page content"}
+	url = url[1:]
+	fmt.Printf("====\n%-9s: /%s\n","url", url)
+	err = pages.Find(bson.M{"url": url}).One(&result)
 	if err != nil {
-			fmt.Println("page not found")
+		fmt.Println("no page found")	
+	} else {
+		fmt.Printf("%-9s: %s\n", "title",result.Title)
+		fmt.Printf("%-9s: %s\n ", "content",result.Content)	
 	}
-	fmt.Println(title)
-	fmt.Println("page:", result.Content)
+	
 
 	/////////////////////
 	return &result, nil
 }
 
-func indexHandler(w http.ResponseWriter, r *http.Request, title string) {
-	p, err := loadPage(title)
+func indexHandler(w http.ResponseWriter, r *http.Request, url string) {
+	p, err := loadPage(url)
 	
 	if err != nil {
-		http.Redirect(w, r, "/"+title, http.StatusFound)
+		http.Redirect(w, r, url, http.StatusFound)
 		return
 	}
 	renderTemplate(w, "index", p)
