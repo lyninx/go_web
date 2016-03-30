@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"log"
 	"html/template"
 	"net/http"
 	"regexp"
@@ -38,8 +37,39 @@ func (f neuteredReaddirFile) Readdir(count int) ([]os.FileInfo, error) {
 }
 
 func loadPage(title string) (*Page, error) {
-	content := "hi, world"	
-	return &Page{Title: title, Content: content}, nil
+	// connect to mongoDB
+	session, err := mgo.Dial("mongodb://admin:testpass@ds023108.mlab.com:23108/go")
+		if err != nil {
+				panic(err)
+		}
+		defer session.Close()
+
+	pages := session.DB("go").C("pages")
+
+
+	// page := &Page{Title: "test", Content: "pagecontent"}
+	// b, err := json.Marshal(page)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
+	// fmt.Println(string(b))
+	// err = pages.Insert(page)
+	// if err != nil {
+	// 		log.Fatal(err)
+	// }
+
+	result := Page{Title: title, Content: "default page content"}
+	title = title[1:]
+	err = pages.Find(bson.M{"title": title}).One(&result)
+	if err != nil {
+			fmt.Println("page not found")
+	}
+	fmt.Println(title)
+	fmt.Println("page:", result.Content)
+
+	/////////////////////
+	return &result, nil
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request, title string) {
@@ -80,38 +110,6 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 
 
 func main() {
-	// connect to mongoDB
-	session, err := mgo.Dial("mongodb://admin:testpass@ds023108.mlab.com:23108/go")
-		if err != nil {
-				panic(err)
-		}
-		defer session.Close()
-
-	pages := session.DB("go").C("pages")
-
-
-	// page := &Page{Title: "test", Content: "pagecontent"}
-	// b, err := json.Marshal(page)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
-	// fmt.Println(string(b))
-	// err = pages.Insert(page)
-	// if err != nil {
-	// 		log.Fatal(err)
-	// }
-
-	result := Page{}
-	err = pages.Find(bson.M{"title": "test"}).One(&result)
-	if err != nil {
-			log.Fatal(err)
-	}
-
-	fmt.Println("page:", result.Content)
-	fmt.Println(err)
-
-	/////////////////////
 
 	fs := justFilesFilesystem{http.Dir("public/")}
 	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(fs)))
