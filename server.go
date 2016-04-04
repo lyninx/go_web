@@ -75,12 +75,14 @@ func loadPage(url string) (*Page, error) {
 	return &result, nil
 }
 
-var templates = template.Must(template.ParseFiles("index.html"))
+var templatesDir = "templates/"
+var templates = template.Must(template.ParseFiles(templatesDir+"index.template"))
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
-	err := templates.ExecuteTemplate(w, tmpl+".html", p)
+	err := templates.ExecuteTemplate(w, tmpl+".template", p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		fmt.Println("template error")
 	}
 }
 
