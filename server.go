@@ -3,11 +3,12 @@ package main
 import (
 	"fmt"
 	"os"
+	"log"
 	"html/template"
 	"net/http"
-	"regexp"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"github.com/gorilla/mux"
 	//"encoding/json"
 )
 
@@ -65,25 +66,13 @@ func loadPage(url string) (*Page, error) {
 	fmt.Printf("====\n%-9s: /%s\n","url", url)
 	err = pages.Find(bson.M{"url": url}).One(&result)
 	if err != nil {
-		fmt.Println("no page found")	
+		fmt.Printf("%-9s: %s\n", "content","page not found")
 	} else {
 		fmt.Printf("%-9s: %s\n", "title",result.Title)
 		fmt.Printf("%-9s: %s\n ", "content",result.Content)	
 	}
 	
-
-	/////////////////////
 	return &result, nil
-}
-
-func indexHandler(w http.ResponseWriter, r *http.Request, url string) {
-	p, err := loadPage(url)
-	
-	if err != nil {
-		http.Redirect(w, r, url, http.StatusFound)
-		return
-	}
-	renderTemplate(w, "index", p)
 }
 
 var templates = template.Must(template.ParseFiles("index.html"))
@@ -95,30 +84,43 @@ func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
 	}
 }
 
-
-
-var validPath = regexp.MustCompile("(/([a-zA-Z0-9]*))+")
-
-func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		m := validPath.FindStringSubmatch(r.URL.Path)
-		if m == nil {
-			http.NotFound(w, r)
-			fmt.Println(r.URL.Path)
-			return
-		}
-		fn(w, r, m[0])
+func Index(w http.ResponseWriter, r *http.Request) {
+	p, err := loadPage(r.URL.Path)
+	
+	if err != nil {
+		// redirect if error
+		return
 	}
+	renderTemplate(w, "index", p)
 }
 
-
+func pageShow(w http.ResponseWriter, r *http.Request) {
+    vars := mux.Vars(r)
+    pageId := vars["id"]
+    p, err := loadPage(r.URL.Path)
+    fmt.Println(pageId)
+	if err != nil {
+		// redirect if error
+		return
+	}
+    renderTemplate(w, "index", p)
+}
 
 func main() {
 
-	fs := justFilesFilesystem{http.Dir("public/")}
-	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(fs)))
+	router := mux.NewRouter().StrictSlash(true)
+	// set static files path
+	fs := justFilesFilesystem{http.Dir("./public/")}
+	router.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(fs))) 
 
-	http.HandleFunc("/", makeHandler(indexHandler))
-	fmt.Println("listening on port 8080")
-	http.ListenAndServe(":8080", nil)
+
+	//http.HandleFunc("/", makeHandler(indexHandler))
+	//router.HandleFunc("/", makeHandler(indexHandler))
+	router.HandleFunc("/", Index)
+	router.HandleFunc("/{id}", pageShow)
+	//router.PathPrefix("/public/").Handler(http.FileServer(fs))
+    // http.HandleFunc("/posts", postIndex)
+    // http.HandleFunc("/posts/{postId}", postShow)
+	fmt.Println("listening on port 3000")
+	log.Fatal(http.ListenAndServe(":3000", router))
 }
