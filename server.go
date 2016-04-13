@@ -56,29 +56,30 @@ func dbConnect() (*mgo.Session) {
 	return session
 }
 
-func loadPage(url string) (*Page, error) {
-
+func loadPage(r *http.Request) (*Page, error) {
+	var url = r.URL.Path
+	var start = time.Now()
 	var session = dbConnect()
 	pages := session.DB("go").C("pages")
 	url = url[1:] //remove leading "/"
 	result := Page{URL: url, Title: "not found", Content: "default page content"} //default page object
 
-	if(url[:4] == apiPath){
-		fmt.Print("API HIT ")
+	if(url[:4] == apiPath){ // remove leading api path
 		url = strings.Replace(url, apiPath, "", 1)
 	}
-
-	fmt.Printf("====\n%-9s: /%s\n","url", url)
 	var err = pages.Find(bson.M{"url": url}).One(&result)
 
+	log.Printf(
+		"%-9s\t%s\t%s\t%s",
+		r.Method,
+		r.RequestURI,
+		result.Title,
+		time.Since(start),
+	)
 	if err != nil {
-		fmt.Printf("%-9s: %s\n", "content", "page not found")
 		return &result, err
-	} else {
-		fmt.Printf("%-9s: %s\n", "title",result.Title)
-		fmt.Printf("%-9s: %s\n ", "content",result.Content)	
-	}
-	
+	} 
+
 	return &result, nil
 }
 

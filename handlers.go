@@ -7,7 +7,7 @@ import (
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	p, err := loadPage(r.URL.Path)
+	p, err := loadPage(r)
 	
 	if err != nil {
 		// return if error
@@ -19,7 +19,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 func pageShow(w http.ResponseWriter, r *http.Request) {
 	// vars := mux.Vars(r)
 	// pageId := vars["id"]
-	p, err := loadPage(r.URL.Path)
+	p, err := loadPage(r)
 	if err != nil {
 		// return if error
 		//return
@@ -28,7 +28,7 @@ func pageShow(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiPage(w http.ResponseWriter, r *http.Request) {
-	p, err := loadPage(r.URL.Path)
+	p, err := loadPage(r)
 	if err != nil {
 		// return if error
 		fmt.Fprintf(w, "not found") 
