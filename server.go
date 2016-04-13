@@ -4,19 +4,24 @@ import (
 	"fmt"
 	"os"
 	"log"
+	"time"
+	"strings"
 	"html/template"
 	"net/http"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"github.com/gorilla/mux"
-	//"encoding/json"
+	"encoding/json"
 )
 
 type Page struct {
 	URL string `json:"url"`
 	Title string `json:"title"`
 	Content string `json:"content"`
+	Modified time.Time `json:"modified"`
 }
+
+type Pages []Page
 
 type justFilesFilesystem struct {
 	fs http.FileSystem
@@ -38,35 +43,39 @@ func (f neuteredReaddirFile) Readdir(count int) ([]os.FileInfo, error) {
 	return nil, nil
 }
 
-func loadPage(url string) (*Page, error) {
+////////////////////////////////////////////////////////////////////
+var templatesPath = "templates/"
+var apiPath = "api/"
+
+
+func dbConnect() (*mgo.Session) {
 	// connect to mongoDB
 	session, err := mgo.Dial("mongodb://admin:testpass@ds023108.mlab.com:23108/go")
-		if err != nil {
-				panic(err)
-		}
-		defer session.Close()
-
-	pages := session.DB("go").C("pages")
-
-
-	// page := &Page{Title: "test", Content: "pagecontent"}
-	// b, err := json.Marshal(page)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
-	// fmt.Println(string(b))
-	// err = pages.Insert(page)
-	// if err != nil {
-	// 		log.Fatal(err)
-	// }
-
-	result := Page{URL: url, Title: "not found", Content: "default page content"}
-	url = url[1:]
-	fmt.Printf("====\n%-9s: /%s\n","url", url)
-	err = pages.Find(bson.M{"url": url}).One(&result)
 	if err != nil {
-		fmt.Printf("%-9s: %s\n", "content","page not found")
+			panic(err)
+			return nil
+	}
+
+	return session
+}
+func loadPage(url string) (*Page, error) {
+
+	var session = dbConnect()
+	pages := session.DB("go").C("pages")
+	url = url[1:] //remove leading "/"
+	result := Page{URL: url, Title: "not found", Content: "default page content"} //default page object
+
+	if(url[:4] == apiPath){
+		fmt.Print("API HIT ")
+		url = strings.Replace(url, apiPath, "", 1)
+	}
+
+	fmt.Printf("====\n%-9s: /%s\n","url", url)
+	var err = pages.Find(bson.M{"url": url}).One(&result)
+
+	if err != nil {
+		fmt.Printf("%-9s: %s\n", "content", "page not found")
+		return &result, err
 	} else {
 		fmt.Printf("%-9s: %s\n", "title",result.Title)
 		fmt.Printf("%-9s: %s\n ", "content",result.Content)	
@@ -75,8 +84,7 @@ func loadPage(url string) (*Page, error) {
 	return &result, nil
 }
 
-var templatesDir = "templates/"
-var templates = template.Must(template.ParseFiles(templatesDir+"index.template"))
+var templates = template.Must(template.ParseFiles(templatesPath+"index.template"))
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
 	err := templates.ExecuteTemplate(w, tmpl+".template", p)
@@ -90,22 +98,31 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	p, err := loadPage(r.URL.Path)
 	
 	if err != nil {
-		// redirect if error
-		return
+		// return if error
+		//return
 	}
 	renderTemplate(w, "index", p)
 }
 
 func pageShow(w http.ResponseWriter, r *http.Request) {
-    vars := mux.Vars(r)
-    pageId := vars["id"]
-    p, err := loadPage(r.URL.Path)
-    fmt.Println(pageId)
+	// vars := mux.Vars(r)
+	// pageId := vars["id"]
+	p, err := loadPage(r.URL.Path)
 	if err != nil {
-		// redirect if error
+		// return if error
+		//return
+	}
+	renderTemplate(w, "index", p)
+}
+
+func apiPage(w http.ResponseWriter, r *http.Request) {
+	p, err := loadPage(r.URL.Path)
+	if err != nil {
+		// return if error
+		fmt.Fprintf(w, "not found") 
 		return
 	}
-    renderTemplate(w, "index", p)
+	json.NewEncoder(w).Encode(p)
 }
 
 func main() {
@@ -115,14 +132,11 @@ func main() {
 	fs := justFilesFilesystem{http.Dir("./public/")}
 	router.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(fs))) 
 
-
-	//http.HandleFunc("/", makeHandler(indexHandler))
-	//router.HandleFunc("/", makeHandler(indexHandler))
 	router.HandleFunc("/", Index)
 	router.HandleFunc("/{id}", pageShow)
-	//router.PathPrefix("/public/").Handler(http.FileServer(fs))
-    // http.HandleFunc("/posts", postIndex)
-    // http.HandleFunc("/posts/{postId}", postShow)
+	router.HandleFunc("/"+ apiPath + "{id}", apiPage)
+
 	fmt.Println("listening on port 3000")
 	log.Fatal(http.ListenAndServe(":3000", router))
+
 }
