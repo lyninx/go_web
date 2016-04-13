@@ -11,7 +11,6 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"github.com/gorilla/mux"
-	"encoding/json"
 )
 
 type Page struct {
@@ -23,8 +22,15 @@ type Page struct {
 
 type Pages []Page
 
+var templatesPath = "templates/"
+var apiPath = "api/"
+
 type justFilesFilesystem struct {
 	fs http.FileSystem
+}
+
+type neuteredReaddirFile struct {
+	http.File
 }
 
 func (fs justFilesFilesystem) Open(name string) (http.File, error) {
@@ -35,18 +41,9 @@ func (fs justFilesFilesystem) Open(name string) (http.File, error) {
 	return neuteredReaddirFile{f}, nil
 }
 
-type neuteredReaddirFile struct {
-	http.File
-}
-
 func (f neuteredReaddirFile) Readdir(count int) ([]os.FileInfo, error) {
 	return nil, nil
 }
-
-////////////////////////////////////////////////////////////////////
-var templatesPath = "templates/"
-var apiPath = "api/"
-
 
 func dbConnect() (*mgo.Session) {
 	// connect to mongoDB
@@ -58,6 +55,7 @@ func dbConnect() (*mgo.Session) {
 
 	return session
 }
+
 func loadPage(url string) (*Page, error) {
 
 	var session = dbConnect()
@@ -94,37 +92,6 @@ func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
 	}
 }
 
-func Index(w http.ResponseWriter, r *http.Request) {
-	p, err := loadPage(r.URL.Path)
-	
-	if err != nil {
-		// return if error
-		//return
-	}
-	renderTemplate(w, "index", p)
-}
-
-func pageShow(w http.ResponseWriter, r *http.Request) {
-	// vars := mux.Vars(r)
-	// pageId := vars["id"]
-	p, err := loadPage(r.URL.Path)
-	if err != nil {
-		// return if error
-		//return
-	}
-	renderTemplate(w, "index", p)
-}
-
-func apiPage(w http.ResponseWriter, r *http.Request) {
-	p, err := loadPage(r.URL.Path)
-	if err != nil {
-		// return if error
-		fmt.Fprintf(w, "not found") 
-		return
-	}
-	json.NewEncoder(w).Encode(p)
-}
-
 func main() {
 
 	router := mux.NewRouter().StrictSlash(true)
@@ -132,9 +99,10 @@ func main() {
 	fs := justFilesFilesystem{http.Dir("./public/")}
 	router.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(fs))) 
 
+	// call handler functions based on route
 	router.HandleFunc("/", Index)
 	router.HandleFunc("/{id}", pageShow)
-	router.HandleFunc("/"+ apiPath + "{id}", apiPage)
+	router.HandleFunc("/"+ apiPath + "{id}", apiPage).Methods("GET", "POST")
 
 	fmt.Println("listening on port 3000")
 	log.Fatal(http.ListenAndServe(":3000", router))
