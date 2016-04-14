@@ -68,7 +68,7 @@ func loadPage(r *http.Request) (*Page, error) {
 
 	// remove leading api path
 	url = strings.Replace(url, apiPath, "", 1)
-
+	
 	var err = pages.Find(bson.M{"url": url}).One(&result)
 
 	log.Printf(
@@ -85,7 +85,7 @@ func loadPage(r *http.Request) (*Page, error) {
 	return &result, nil
 }
 
-var templates = template.Must(template.ParseFiles(templatesPath+"index.template"))
+var templates = template.Must(template.ParseFiles(templatesPath+"index.template",templatesPath+"create.template"))
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
 	err := templates.ExecuteTemplate(w, tmpl+".template", p)
@@ -104,8 +104,8 @@ func main() {
 
 	// call handler functions based on route
 	router.HandleFunc("/", index)
-	router.HandleFunc("/{id}", page)
 	router.HandleFunc("/create", create)
+	router.HandleFunc("/{id}", page)
 	router.HandleFunc("/"+ apiPath + "{id}", apiPage).Methods("GET", "POST")
 
 	fmt.Println("listening on port 3000")

@@ -33,7 +33,7 @@ func create(w http.ResponseWriter, r *http.Request) {
 		// return if error
 		//return
 	}
-	renderTemplate(w, "index", p)
+	renderTemplate(w, "create", p)
 }
 
 func apiPage(w http.ResponseWriter, r *http.Request) {
