@@ -61,12 +61,14 @@ func loadPage(r *http.Request) (*Page, error) {
 	var start = time.Now()
 	var session = dbConnect()
 	pages := session.DB("go").C("pages")
+	fmt.Println(url)
+
 	url = url[1:] //remove leading "/"
 	result := Page{URL: url, Title: "not found", Content: "default page content"} //default page object
 
-	if(url[:4] == apiPath){ // remove leading api path
-		url = strings.Replace(url, apiPath, "", 1)
-	}
+	// remove leading api path
+	url = strings.Replace(url, apiPath, "", 1)
+
 	var err = pages.Find(bson.M{"url": url}).One(&result)
 
 	log.Printf(
@@ -101,8 +103,9 @@ func main() {
 	router.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(fs))) 
 
 	// call handler functions based on route
-	router.HandleFunc("/", Index)
-	router.HandleFunc("/{id}", pageShow)
+	router.HandleFunc("/", index)
+	router.HandleFunc("/{id}", page)
+	router.HandleFunc("/create", create)
 	router.HandleFunc("/"+ apiPath + "{id}", apiPage).Methods("GET", "POST")
 
 	fmt.Println("listening on port 3000")

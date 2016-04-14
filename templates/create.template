@@ -1,0 +1,11 @@
+<html>
+<link rel='stylesheet' type='text/css' href="/public/style.css" />
+<body>
+<div id="main">
+	<h1>{{.Title}}</h1>
+	<form type="POST">
+		<input type="text" content="test">
+	</form>
+</div>
+</body>
+</html>

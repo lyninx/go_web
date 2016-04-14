@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 )
 
-func Index(w http.ResponseWriter, r *http.Request) {
+func index(w http.ResponseWriter, r *http.Request) {
 	p, err := loadPage(r)
 	
 	if err != nil {
@@ -16,9 +16,18 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "index", p)
 }
 
-func pageShow(w http.ResponseWriter, r *http.Request) {
+func page(w http.ResponseWriter, r *http.Request) {
 	// vars := mux.Vars(r)
 	// pageId := vars["id"]
+	p, err := loadPage(r)
+	if err != nil {
+		// return if error
+		//return
+	}
+	renderTemplate(w, "index", p)
+}
+
+func create(w http.ResponseWriter, r *http.Request) {
 	p, err := loadPage(r)
 	if err != nil {
 		// return if error
