@@ -4,7 +4,10 @@
 <div id="main">
 	<h1>Welcome</h1>
 	<row><div><b>This project demonstrates the use of Go as a web backend</b></div></row>
+	<row>GitHub Url...</row>
+	<row><h3>Current Pages</h3></row>
 	<row><ul id="index"></ul></row>
+	<row><a href="/create"><button class="btn">Add a new page</button></a></row>
 </div>
 <script src="https://code.jquery.com/jquery-2.2.3.js"></script>
 <script src="/public/util.js"></script> 

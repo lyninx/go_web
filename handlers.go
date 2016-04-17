@@ -56,7 +56,6 @@ func apiPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiCreate(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("post...")
 
 	decoder := json.NewDecoder(r.Body)
 	p := Page{Modified: time.Now()} 
