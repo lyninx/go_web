@@ -40,7 +40,7 @@ func apiIndex(w http.ResponseWriter, r *http.Request) {
 	p, err := loadPageList(r)
 	if err != nil {
 		// return if error
-		fmt.Fprintf(w, "nope") 
+		fmt.Fprintf(w, "error") 
 		return
 	}
 	json.NewEncoder(w).Encode(p)

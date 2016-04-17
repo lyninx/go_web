@@ -1,12 +1,5 @@
-<html>
-<link rel='stylesheet' type='text/css' href="/public/style.css" />
-<body>
 <div id="main">
 	<h1>{{.Title}}</h1>
 	<div>Last Modified: {{.Modified}}</div><br>
 	<div>{{printf "%s" .Content}}</div>
 </div>
-<script src="https://code.jquery.com/jquery-2.2.3.js"></script>
-<script src="/public/util.js"></script> 
-</body>
-</html>

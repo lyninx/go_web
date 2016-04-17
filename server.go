@@ -55,11 +55,12 @@ func dbConnect() (*mgo.Session) {
 
 	return session
 }
+var session = dbConnect()
 
 func loadPage(r *http.Request) (*Page, error) {
 	var url = r.URL.Path
 	var start = time.Now()
-	var session = dbConnect()
+	
 	pages := session.DB("go").C("pages")
 	fmt.Println(url)
 
@@ -72,7 +73,7 @@ func loadPage(r *http.Request) (*Page, error) {
 	var err = pages.Find(bson.M{"url": url}).One(&result)
 
 	log.Printf(
-		"%-9s\t%s\t%s",
+		"%-9s\t%-9s\t%s",
 		r.Method,
 		r.RequestURI,
 		time.Since(start),
@@ -86,7 +87,6 @@ func loadPage(r *http.Request) (*Page, error) {
 
 func loadPageList(r *http.Request) (*Pages, error){
 	var start = time.Now()
-	var session = dbConnect()
 	pages := session.DB("go").C("pages")
 
 	result := Pages{}
@@ -94,7 +94,7 @@ func loadPageList(r *http.Request) (*Pages, error){
 	var err = pages.Find(nil).All(&result)
 
 	log.Printf(
-		"%-9s\t%s\t%s",
+		"%-9s\t%-9s\t%s",
 		r.Method,
 		r.RequestURI,
 		time.Since(start),
@@ -106,10 +106,17 @@ func loadPageList(r *http.Request) (*Pages, error){
 	return &result, nil
 }
 
-var templates = template.Must(template.ParseFiles(templatesPath+"index.template",templatesPath+"page.template",templatesPath+"create.template"))
+var templates = template.Must(template.ParseFiles(
+	templatesPath+"index.template",
+	templatesPath+"page.template",
+	templatesPath+"create.template",
+	templatesPath+"header.template",
+	templatesPath+"footer.template"))
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
-	err := templates.ExecuteTemplate(w, tmpl+".template", p)
+	err := templates.ExecuteTemplate(w, "header.template", p)
+	err = templates.ExecuteTemplate(w, tmpl+".template", p)
+	err = templates.ExecuteTemplate(w, "footer.template", p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		fmt.Println("template error")
@@ -131,7 +138,7 @@ func main() {
 	router.HandleFunc("/create", create)
 	router.HandleFunc("/{id}", page)
 
-	fmt.Println("listening on port 3001")
-	log.Fatal(http.ListenAndServe(":3001", router))
+	fmt.Println("listening on port 8080")
+	log.Fatal(http.ListenAndServe(":8080", router))
 
 }
