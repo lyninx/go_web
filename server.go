@@ -82,7 +82,7 @@ func loadPage(r *http.Request) (*Page, error) {
 	return &result, nil
 }
 
-var templates = template.Must(template.ParseFiles(templatesPath+"index.template",templatesPath+"create.template"))
+var templates = template.Must(template.ParseFiles(templatesPath+"index.template",templatesPath+"page.template",templatesPath+"create.template"))
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
 	err := templates.ExecuteTemplate(w, tmpl+".template", p)

@@ -25,7 +25,7 @@ func page(w http.ResponseWriter, r *http.Request) {
 		// return if error
 		//return
 	}
-	renderTemplate(w, "index", p)
+	renderTemplate(w, "page", p)
 }
 
 func create(w http.ResponseWriter, r *http.Request) {
