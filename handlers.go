@@ -36,7 +36,15 @@ func create(w http.ResponseWriter, r *http.Request) {
 	}
 	renderTemplate(w, "create", p)
 }
-
+func apiIndex(w http.ResponseWriter, r *http.Request) {
+	p, err := loadPageList(r)
+	if err != nil {
+		// return if error
+		fmt.Fprintf(w, "nope") 
+		return
+	}
+	json.NewEncoder(w).Encode(p)
+}
 func apiPage(w http.ResponseWriter, r *http.Request) {
 	p, err := loadPage(r)
 	if err != nil {
@@ -47,7 +55,7 @@ func apiPage(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(p)
 }
 
-func apiNew(w http.ResponseWriter, r *http.Request) {
+func apiCreate(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("post...")
 
 	decoder := json.NewDecoder(r.Body)

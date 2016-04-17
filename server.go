@@ -20,6 +20,8 @@ type Page struct {
 	Modified time.Time `json:"modified"` 
 }
 
+type Pages []Page
+
 var templatesPath = "templates/"
 var apiPath = "api/"
 
@@ -62,12 +64,34 @@ func loadPage(r *http.Request) (*Page, error) {
 	fmt.Println(url)
 
 	url = url[1:] //remove leading "/"
-	result := Page{URL: url, Title: "not found", Content: "default page content"} //default page object
+	result := Page{URL: "", Title: "not found", Content: "default page content"} //default page object
 
 	// remove leading api path
 	url = strings.Replace(url, apiPath, "", 1)
 	
 	var err = pages.Find(bson.M{"url": url}).One(&result)
+
+	log.Printf(
+		"%-9s\t%s\t%s",
+		r.Method,
+		r.RequestURI,
+		time.Since(start),
+	)
+	if err != nil {
+		return &result, err
+	} 
+
+	return &result, nil
+}
+
+func loadPageList(r *http.Request) (*Pages, error){
+	var start = time.Now()
+	var session = dbConnect()
+	pages := session.DB("go").C("pages")
+
+	result := Pages{}
+
+	var err = pages.Find(nil).All(&result)
 
 	log.Printf(
 		"%-9s\t%s\t%s",
@@ -100,13 +124,14 @@ func main() {
 	router.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(fs))) 
 
 	// call handler functions based on route
+	router.HandleFunc("/"+ apiPath, apiIndex).Methods("GET")
+	router.HandleFunc("/"+ apiPath + "create", apiCreate).Methods("POST")
+	router.HandleFunc("/"+ apiPath + "{id}", apiPage).Methods("GET")
 	router.HandleFunc("/", index)
 	router.HandleFunc("/create", create)
 	router.HandleFunc("/{id}", page)
-	router.HandleFunc("/"+ apiPath + "new", apiNew).Methods("POST")
-	router.HandleFunc("/"+ apiPath + "{id}", apiPage).Methods("GET")
 
-	fmt.Println("listening on port 3000")
-	log.Fatal(http.ListenAndServe(":3000", router))
+	fmt.Println("listening on port 3001")
+	log.Fatal(http.ListenAndServe(":3001", router))
 
 }

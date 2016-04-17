@@ -21,7 +21,7 @@ $('#create-form').submit(function () {
     var formData = JSON.stringify(obj)
 	$.ajax({
 	  type: "POST",
-	  url: "api/new",
+	  url: "api/create",
 	  data: formData,
 	  success: function(){ console.log("created!")},
 	  dataType: "json",
