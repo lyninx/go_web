@@ -7,10 +7,25 @@ body {
 }
 h1 {
 	display:inline-block;
-	border-bottom:4px solid #5be3c1
+	background:#5be3c1;
+	color:#fff;
+	font-weight:bold;
+	padding:8px 12px;
+	margin:12px 0;
+	/*border-bottom:4px solid #5be3c1;*/
 }
 h2, h3, h4, h5 {
 	margin:0;
+}
+a.link {
+	text-decoration:none;
+	border-bottom:2px solid #444;
+	color:#444;
+	font-weight:bold;
+}
+a.link:hover {
+	border-bottom:2px solid #5be3c1;
+	color:#000;
 }
 #main {
 	max-width:1020px;
@@ -43,6 +58,7 @@ h2, h3, h4, h5 {
 }
 #index a:hover li{
 	background:#5be3c1;
+	color:#000;
 }
 #index li span {
 	flex-grow:1;

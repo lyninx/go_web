@@ -1,5 +1,5 @@
 <div id="main">
-	<h1>{{.Title}}</h1>
-	<div>Last Modified: {{.Modified}}</div><br>
-	<div>{{printf "%s" .Content}}</div>
+	<h1>{{.page.Title}}</h1>
+	<div>Last Modified: {{.page.Modified}}</div><br>
+	<div>{{printf "%s" .page.Content}}</div>
 </div>

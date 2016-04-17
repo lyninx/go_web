@@ -29,7 +29,7 @@ $('#create-form').submit(function () {
 	return false
 });
 
-//if($('#index').length) {
+if($('#index').length) {
 	// get all documents and append to page
 	$.get( "api/", function( data ) {
 		var pages = JSON.parse(data)
@@ -38,4 +38,4 @@ $('#create-form').submit(function () {
 			$('#index').append("<a href=/"+elem.url+"><li><span class='title'>"+elem.title+"</span><span class='modified'>"+new Date(elem.modified).toDateString()+"</span></li></a>")
 		})
 	})
-//}
+}

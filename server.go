@@ -20,6 +20,8 @@ type Page struct {
 	Modified time.Time `json:"modified"` 
 }
 
+type M map[string]interface{}
+
 type Pages []Page
 
 var templatesPath = "templates/"
@@ -85,27 +87,18 @@ func loadPage(r *http.Request) (*Page, error) {
 	return &result, nil
 }
 
-func loadPageList(r *http.Request) (*Pages, error){
-	var start = time.Now()
+func loadPageList() (*Pages, error){
 	pages := session.DB("go").C("pages")
-
 	result := Pages{}
 
 	var err = pages.Find(nil).All(&result)
-
-	log.Printf(
-		"%-9s\t%-9s\t%s",
-		r.Method,
-		r.RequestURI,
-		time.Since(start),
-	)
 	if err != nil {
 		return &result, err
 	} 
 
 	return &result, nil
 }
-
+// load template files
 var templates = template.Must(template.ParseFiles(
 	templatesPath+"index.template",
 	templatesPath+"page.template",
@@ -113,13 +106,19 @@ var templates = template.Must(template.ParseFiles(
 	templatesPath+"header.template",
 	templatesPath+"footer.template"))
 
+//render page
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
-	err := templates.ExecuteTemplate(w, "header.template", p)
-	err = templates.ExecuteTemplate(w, tmpl+".template", p)
+	index, err := loadPageList()
+	pageData := M{
+		"page": p,
+		"index": index,
+	}
+	err = templates.ExecuteTemplate(w, "header.template", p)
+	err = templates.ExecuteTemplate(w, tmpl+".template", pageData)
 	err = templates.ExecuteTemplate(w, "footer.template", p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		fmt.Println("template error")
+		log.Println("template error")
 	}
 }
 

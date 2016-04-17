@@ -1,8 +1,17 @@
 <div id="main">
-	<h1>Welcome</h1>
+	<h1>Programming Languages Final Project</h1>
 	<row><div><b>This project demonstrates the use of Go as a web backend</b></div></row>
-	<row>GitHub Url...</row>
+	<row><a class="link" href="https://www.github.com/lyninx/go_web">GitHub Project Page</a></row>
 	<row><h3>Current Pages</h3></row>
-	<row><ul id="index"></ul></row>
+	<row><ul id="index">
+	<h4>rendered serverside:</h4>
+	<br>
+	{{range .index}}
+		<a href={{.URL}}><li><span class="title">{{.Title}}</span><span class="modified">{{.Modified.Format "Mon Jan 02 2006"}}</span></li></a>
+	{{end}}
+	<br><br>
+	<h4>fetched from api:</h4>
+	<br>
+	</ul></row>
 	<row><a href="/create"><button class="btn">Add a new page</button></a></row>
 </div>

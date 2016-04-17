@@ -37,7 +37,7 @@ func create(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "create", p)
 }
 func apiIndex(w http.ResponseWriter, r *http.Request) {
-	p, err := loadPageList(r)
+	p, err := loadPageList()
 	if err != nil {
 		// return if error
 		fmt.Fprintf(w, "error") 
