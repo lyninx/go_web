@@ -17,10 +17,8 @@ type Page struct {
 	URL string `json:"url"`
 	Title string `json:"title"`
 	Content string `json:"content"`
-	Modified time.Time `json:"modified"`
+	Modified time.Time `json:"modified"` 
 }
-
-type Pages []Page
 
 var templatesPath = "templates/"
 var apiPath = "api/"
@@ -72,10 +70,9 @@ func loadPage(r *http.Request) (*Page, error) {
 	var err = pages.Find(bson.M{"url": url}).One(&result)
 
 	log.Printf(
-		"%-9s\t%s\t%s\t%s",
+		"%-9s\t%s\t%s",
 		r.Method,
 		r.RequestURI,
-		result.Title,
 		time.Since(start),
 	)
 	if err != nil {
@@ -106,7 +103,8 @@ func main() {
 	router.HandleFunc("/", index)
 	router.HandleFunc("/create", create)
 	router.HandleFunc("/{id}", page)
-	router.HandleFunc("/"+ apiPath + "{id}", apiPage).Methods("GET", "POST")
+	router.HandleFunc("/"+ apiPath + "new", apiNew).Methods("POST")
+	router.HandleFunc("/"+ apiPath + "{id}", apiPage).Methods("GET")
 
 	fmt.Println("listening on port 3000")
 	log.Fatal(http.ListenAndServe(":3000", router))
