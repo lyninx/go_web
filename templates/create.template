@@ -3,7 +3,7 @@
 <body>
 <div id="main">
 	<h1>Create a new page</h1>
-	<form type="POST">
+	<form id="create-form">
 		<row>
 			<label>Title</label>
 			<input type="text" name="title">
@@ -14,12 +14,14 @@
 		</row>
 		<row>
 			<label>Body</label>
-			<textarea type="text" name="url" rows="4"></textarea>
+			<textarea type="text" name="body" rows="4"></textarea>
 		</row>
 		<row>
-			<input class="btn" type="submit" value="Submit">
+			<button class="btn submit" type="submit">Submit</button>
 		</row>
 	</form>
 </div>
+<script src="https://code.jquery.com/jquery-2.2.3.js"></script>
+<script src="/public/util.js"></script> 
 </body>
 </html>
