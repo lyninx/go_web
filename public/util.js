@@ -22,10 +22,14 @@ $('#create-form').submit(function () {
 		type: "POST",
 		url: "api/create",
 		data: formData,
-		success: function(){ console.log("created!")},
+		complete: function(){ 
+			console.log("created!")
+			window.location.href = "/";
+		},
 		dataType: "json",
 		contentType : "application/json"
 	});
+
 	return false
 });
 
@@ -34,7 +38,6 @@ if($('#index').length) {
 	$.get( "api/", function( data ) {
 		var pages = JSON.parse(data)
 		pages.forEach(function(elem, index, array){
-			console.log(elem)
 			$('#index').append("<a href=/"+elem.url+"><li><span class='title'>"+elem.title+"</span><span class='modified'>"+new Date(elem.modified).toDateString()+"</span></li></a>")
 		})
 	})

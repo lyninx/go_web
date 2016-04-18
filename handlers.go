@@ -74,5 +74,4 @@ func apiCreate(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(p)
 }
