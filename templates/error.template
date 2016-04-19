@@ -1,0 +1,5 @@
+<div id="main">
+	<h1>{{.page.Title}}</h1>
+<br>
+	<div>{{.page.Content}}</div>
+</div>

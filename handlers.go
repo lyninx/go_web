@@ -7,7 +7,6 @@ import (
 
 func index(w http.ResponseWriter, r *http.Request) {
 	p, err := loadPage(r)
-	
 	if err != nil {
 		//logError(r, err)
 	}
@@ -18,6 +17,8 @@ func page(w http.ResponseWriter, r *http.Request) {
 	p, err := loadPage(r)
 	if err != nil {
 		//logError(r, err)
+		renderTemplate(w, "error", p)
+		return
 	}
 	renderTemplate(w, "page", p)
 }
@@ -25,7 +26,7 @@ func page(w http.ResponseWriter, r *http.Request) {
 func create(w http.ResponseWriter, r *http.Request) {
 	p, err := loadPage(r)
 	if err != nil {
-		logError(r, err)
+		//logError(r, err)
 	}
 	renderTemplate(w, "create", p)
 }

@@ -3,3 +3,9 @@
 <link rel='stylesheet' type='text/css' href="/public/style.css" />
 </head>
 <body>
+<div id="header">
+<ul id="nav">
+<a href="/"><li>HOME</li></a>
+<a href="/about"><li>ABOUT</li></a>
+</ul>
+</div>

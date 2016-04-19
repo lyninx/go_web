@@ -64,7 +64,8 @@ var templates = template.Must(template.ParseFiles(
 	templatesPath+"page.template",
 	templatesPath+"create.template",
 	templatesPath+"header.template",
-	templatesPath+"footer.template"))
+	templatesPath+"footer.template",
+	templatesPath+"error.template"))
 
 //render page
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {

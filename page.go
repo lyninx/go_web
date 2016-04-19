@@ -15,7 +15,7 @@ func loadPage(r *http.Request) (*Page, error) {
 	pages := session.DB("go").C("pages")
 
 	url = url[1:] //remove leading "/"
-	result := Page{URL: "", Title: "not found", Content: "default page content"} //default page object
+	result := Page{URL: "", Title: "not found", Content: "sorry, couldn't find that page."} //default page object
 
 	// remove leading api path
 	url = strings.Replace(url, apiPath, "", 1)
