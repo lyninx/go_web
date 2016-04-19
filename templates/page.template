@@ -1,5 +1,8 @@
 <div id="main">
 	<h1>{{.page.Title}}</h1>
+	<form id="delete-form">
+			<button class="btn submit" type="submit">Delete Page</button>
+	</form>
 	<div><b>Last Modified</b> {{.page.Modified}}</div><br>
 	<div>{{.page.Content}}</div>
 </div>

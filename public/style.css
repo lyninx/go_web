@@ -77,6 +77,11 @@ form {
 form row input, form row textarea {
 	flex-grow:1;
 }
+#delete-form {
+	display:inline-block;
+	float:right;
+	margin:12px 0;
+}
 label {
 	font-weight:bold;
 	display:inline-block;

@@ -33,6 +33,23 @@ $('#create-form').submit(function () {
 	return false
 });
 
+$('#delete-form').submit(function () {
+	var url = window.location.pathname.split('/').pop();
+	$.ajax({
+		type: "DELETE",
+		url: "api/"+url,
+		data: new Object(),
+		complete: function(){ 
+			console.log("deleted "+url+"!")
+			window.location.href = "/";
+		},
+		dataType: "json",
+		contentType : "application/json"
+	});
+
+	return false
+});
+
 if($('#index').length) {
 	// get all documents and append to page
 	$.get( "api/", function( data ) {

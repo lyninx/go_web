@@ -5,11 +5,9 @@ import (
 	"os"
 	"log"
 	"time"
-	"strings"
 	"html/template"
 	"net/http"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 	"github.com/gorilla/mux"
 )
 
@@ -59,45 +57,6 @@ func dbConnect() (*mgo.Session) {
 }
 var session = dbConnect()
 
-func loadPage(r *http.Request) (*Page, error) {
-	var url = r.URL.Path
-	var start = time.Now()
-	
-	pages := session.DB("go").C("pages")
-	fmt.Println(url)
-
-	url = url[1:] //remove leading "/"
-	result := Page{URL: "", Title: "not found", Content: "default page content"} //default page object
-
-	// remove leading api path
-	url = strings.Replace(url, apiPath, "", 1)
-	
-	var err = pages.Find(bson.M{"url": url}).One(&result)
-
-	log.Printf(
-		"%-9s\t%-9s\t%s",
-		r.Method,
-		r.RequestURI,
-		time.Since(start),
-	)
-	if err != nil {
-		return &result, err
-	} 
-
-	return &result, nil
-}
-
-func loadPageList() (*Pages, error){
-	pages := session.DB("go").C("pages")
-	result := Pages{}
-
-	var err = pages.Find(nil).All(&result)
-	if err != nil {
-		return &result, err
-	} 
-
-	return &result, nil
-}
 // load template files
 var templates = template.Must(template.ParseFiles(
 	templatesPath+"index.template",
@@ -132,6 +91,7 @@ func main() {
 	// call handler functions based on route
 	router.HandleFunc("/"+ apiPath, apiIndex).Methods("GET")
 	router.HandleFunc("/"+ apiPath + "create", apiCreate).Methods("POST")
+	router.HandleFunc("/"+ apiPath + "{id}", apiDelete).Methods("DELETE")
 	router.HandleFunc("/"+ apiPath + "{id}", apiPage).Methods("GET")
 	router.HandleFunc("/", index)
 	router.HandleFunc("/create", create)

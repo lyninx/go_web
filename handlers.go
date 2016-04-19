@@ -75,3 +75,10 @@ func apiCreate(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 }
+
+func apiDelete(w http.ResponseWriter, r *http.Request) {
+	err := deletePage(r)
+	if err != nil {
+		fmt.Println(err)
+	}	
+}
