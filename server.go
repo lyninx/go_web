@@ -46,7 +46,7 @@ func (f neuteredReaddirFile) Readdir(count int) ([]os.FileInfo, error) {
 }
 
 func dbConnect() (*mgo.Session) {
-	// connect to mongoDB
+	// get mongoDB session
 	session, err := mgo.Dial("mongodb://admin:testpass@ds023108.mlab.com:23108/go")
 	if err != nil {
 			panic(err)
@@ -55,6 +55,7 @@ func dbConnect() (*mgo.Session) {
 
 	return session
 }
+// connect to database
 var session = dbConnect()
 
 // load template files
@@ -82,7 +83,6 @@ func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
 }
 
 func main() {
-
 	router := mux.NewRouter().StrictSlash(true)
 	// set static files path
 	fs := justFilesFilesystem{http.Dir("./public/")}
@@ -99,5 +99,4 @@ func main() {
 
 	fmt.Println("listening on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", router))
-
 }
