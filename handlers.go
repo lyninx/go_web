@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"encoding/json"
 )
@@ -10,19 +9,15 @@ func index(w http.ResponseWriter, r *http.Request) {
 	p, err := loadPage(r)
 	
 	if err != nil {
-		// return if error
-		//return
+		//logError(r, err)
 	}
 	renderTemplate(w, "index", p)
 }
 
 func page(w http.ResponseWriter, r *http.Request) {
-	// vars := mux.Vars(r)
-	// pageId := vars["id"]
 	p, err := loadPage(r)
 	if err != nil {
-		// return if error
-		//return
+		//logError(r, err)
 	}
 	renderTemplate(w, "page", p)
 }
@@ -30,16 +25,14 @@ func page(w http.ResponseWriter, r *http.Request) {
 func create(w http.ResponseWriter, r *http.Request) {
 	p, err := loadPage(r)
 	if err != nil {
-		// return if error
-		//return
+		logError(r, err)
 	}
 	renderTemplate(w, "create", p)
 }
 func apiIndex(w http.ResponseWriter, r *http.Request) {
 	p, err := loadPageList()
 	if err != nil {
-		// return if error
-		fmt.Fprintf(w, "error") 
+		logError(r, err)
 		return
 	}
 	json.NewEncoder(w).Encode(p)
@@ -47,8 +40,7 @@ func apiIndex(w http.ResponseWriter, r *http.Request) {
 func apiPage(w http.ResponseWriter, r *http.Request) {
 	p, err := loadPage(r)
 	if err != nil {
-		// return if error
-		fmt.Fprintf(w, "not found") 
+		logError(r, err)
 		return
 	}
 	json.NewEncoder(w).Encode(p)
@@ -56,15 +48,14 @@ func apiPage(w http.ResponseWriter, r *http.Request) {
 
 func apiCreate(w http.ResponseWriter, r *http.Request) {
 	err := createPage(r)
-	
 	if err != nil {
-		fmt.Println(err)
+		logError(r, err)
 	}
 }
 
 func apiDelete(w http.ResponseWriter, r *http.Request) {
 	err := deletePage(r)
 	if err != nil {
-		fmt.Println(err)
+		logError(r, err)
 	}	
 }
