@@ -1,6 +1,6 @@
 <div id="main">
 	<h1>Programming Languages Final Project</h1>
-	<row><div><b>This project demonstrates the use of Go as a web backend</b></div></row>
+	<row><div><b>This project demonstrates the use of Go as a web backend with a REST api.</b></div></row>
 	<row><a class="link" href="https://www.github.com/lyninx/go_web">GitHub Project Page</a></row>
 	<row><h3>Current Pages</h3></row>
 	<row><ul id="index">

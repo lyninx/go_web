@@ -94,6 +94,7 @@ func main() {
 	router.HandleFunc("/"+ apiPath + "create", apiCreate).Methods("POST")
 	router.HandleFunc("/"+ apiPath + "{id}", apiDelete).Methods("DELETE")
 	router.HandleFunc("/"+ apiPath + "{id}", apiPage).Methods("GET")
+	// 
 	router.HandleFunc("/", index)
 	router.HandleFunc("/create", create)
 	router.HandleFunc("/{id}", page)
